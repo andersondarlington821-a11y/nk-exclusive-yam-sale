@@ -1,0 +1,31 @@
+[build]
+  command = "npm install"
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/order"
+  to = "/.netlify/functions/api/order"
+  status = 200
+
+[[redirects]]
+  from = "/admin/orders"
+  to = "/.netlify/functions/api/admin/orders"
+  status = 200
+
+[[redirects]]
+  from = "/orders"
+  to = "/.netlify/functions/api/orders"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
