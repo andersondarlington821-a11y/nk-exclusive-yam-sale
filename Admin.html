@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Yam Orders</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: rgb(107, 55, 55);
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 28px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-box, .filter-select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .refresh-btn {
+            background: rgb(107, 55, 55);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .refresh-btn:hover {
+            opacity: 0.9;
+        }
+
+        .orders-table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: rgb(107, 55, 55);
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-shipped {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-delivered {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 12px;
+        }
+
+        .btn-update {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-update:hover {
+            background: #218838;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+            z-index: 1001;
+            font-size: 14px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🍠 Yam Orders Admin Dashboard</h1>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Total Orders</h3>
+                    <div class="number" id="totalOrders">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <div class="number" id="pendingOrders">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Revenue</h3>
+                    <div class="number" id="totalRevenue">₦0</div>
+                </div>
+            </div>
+            <div class="notification-bell" onclick="requestNotificationPermission()">
+                🔔
+                <span class="notification-badge" id="notificationBadge">0</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-box" id="searchInput" placeholder="Search by name or address...">
+            <select class="filter-select" id="statusFilter">
+                <option value="all">All Orders</option>
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+            </select>
+            <button class="refresh-btn" onclick="fetchOrders()">🔄 Refresh</button>
+        </div>
+
+        <div class="orders-table-container">
+            <div id="ordersTable">
+                <div class="loading">Loading orders...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="updateModal">
+        <div class="modal-content">
+            <h2>Update Order Status</h2>
+            <p>Order ID: <strong id="modalOrderId"></strong></p>
+            <select id="modalStatus">
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="btn btn-update" onclick="updateOrderStatus()">Update</button>
+                <button class="btn" onclick="closeModal()" style="background:#6c757d; color:white;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentOrders = [];
+        let currentUpdateId = null;
+        let lastOrderCount = 0;
+
+        // Request notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    showToast('Notifications are enabled');
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            showToast('Notifications enabled!');
+                        }
+                    });
+                }
+            } else {
+                showToast('Your browser does not support notifications');
+            }
+        }
+
+        // Show browser notification
+        function showBrowserNotification(message, isNewOrder = false) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Yam Order Admin', {
+                    body: message,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/2917/2917995.png'
+                });
+            }
+            showToast(message);
+            
+            if (isNewOrder) {
+                const badge = document.getElementById('notificationBadge');
+                badge.textContent = parseInt(badge.textContent) + 1;
+            }
+        }
+
+        // Show toast message
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Fetch orders from server
+        async function fetchOrders() {
+            try {
+                console.log('Fetching orders...');
+                const response = await fetch('http://localhost:3000/admin/orders');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Orders received:', data);
+                
+                if (data.success) {
+                    const newOrdersCount = data.orders.length - currentOrders.length;
+                    if (newOrdersCount > 0 && currentOrders.length > 0) {
+                        showBrowserNotification(`${newOrdersCount} new order(s) received!`, true);
+                    }
+                    
+                    currentOrders = data.orders;
+                    displayOrders(currentOrders);
+                    updateStats(currentOrders);
+                } else {
+                    throw new Error('Server returned unsuccessful response');
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                document.getElementById('ordersTable').innerHTML = `<div class="error-message">
+                    ❌ Failed to load orders.<br>
+                    Make sure server is running at http://localhost:3000<br>
+                    Error: ${error.message}
+                </div>`;
+            }
+        }
+
+        // Display orders in table
+        function displayOrders(orders) {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filtered = orders;
+            if (searchTerm) {
+                filtered = filtered.filter(o => 
+                    o.name.toLowerCase().includes(searchTerm) || 
+                    o.address.toLowerCase().includes(searchTerm)
+                );
+            }
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(o => o.status === statusFilter);
+            }
+            
+            if (filtered.length === 0) {
+                document.getElementById('ordersTable').innerHTML = '<div class="loading">📭 No orders found</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr>';
+            html += '<th>ID</th><th>Customer</th><th>Address</th><th>Yam Type</th><th>Amount</th><th>Price/kg</th><th>Total</th><th>Status</th><th>Created</th><th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            filtered.forEach(order => {
+                html += `<tr>
+                    <td>#${order.id}</td>
+                    <td>${escapeHtml(order.name)}</td>
+                    <td>${escapeHtml(order.address)}</td>
+                    <td>${order.yamType}</td>
+                    <td>${order.amount_kg} kg</td>
+                    <td>₦${order.pricePerKg.toLocaleString()}</td>
+                    <td>₦${order.totalPrice.toLocaleString()}</td>
+                    <td><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></td>
+                    <td>${order.createdAt}</td>
+                    <td>
+                        <button class="btn btn-update" onclick="openUpdateModal(${order.id})">Update</button>
+                        <button class="btn btn-delete" onclick="deleteOrder(${order.id})">Delete</button>
+                    </td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('ordersTable').innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function updateStats(orders) {
+            const total = orders.length;
+            const pending = orders.filter(o => o.status === 'Pending').length;
+            const revenue = orders.reduce((sum, o) => sum + o.totalPrice, 0);
+            
+            document.getElementById('totalOrders').textContent = total;
+            document.getElementById('pendingOrders').textContent = pending;
+            document.getElementById('totalRevenue').textContent = `₦${revenue.toLocaleString()}`;
+        }
+
+        function openUpdateModal(orderId) {
+            currentUpdateId = orderId;
+            const order = currentOrders.find(o => o.id === orderId);
+            document.getElementById('modalOrderId').textContent = orderId;
+            document.getElementById('modalStatus').value = order.status;
+            document.getElementById('updateModal').style.display = 'flex';
+        }
+
+        async function updateOrderStatus() {
+            const newStatus = document.getElementById('modalStatus').value;
+            
+            try {
+                const response = await fetch(`http://localhost:3000/admin/orders/${currentUpdateId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (response.ok) {
+                    showToast(`✅ Order #${currentUpdateId} updated to ${newStatus}`);
+                    fetchOrders();
+                    closeModal();
+                } else {
+                    showToast('❌ Failed to update status');
+                }
+            } catch (error) {
+                showToast('❌ Failed to update status');
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (confirm(`Are you sure you want to delete order #${orderId}?`)) {
+                try {
+                    const response = await fetch(`http://localhost:3000/admin/orders/${orderId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showToast(`✅ Order #${orderId} deleted`);
+                        fetchOrders();
+                    } else {
+                        showToast('❌ Failed to delete order');
+                    }
+                } catch (error) {
+                    showToast('❌ Failed to delete order');
+                }
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('updateModal').style.display = 'none';
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', () => displayOrders(currentOrders));
+        document.getElementById('statusFilter').addEventListener('change', () => displayOrders(currentOrders));
+        
+        // Auto-refresh every 10 seconds
+        setInterval(fetchOrders, 10000);
+        
+        // Initial load
+        fetchOrders();
+        
+        // Request notification permission on page load
+        if ('Notification' in window && Notification.permission === 'default') {
+            setTimeout(() => {
+                if (confirm('Would you like to enable notifications for new orders?')) {
+                    requestNotificationPermission();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
