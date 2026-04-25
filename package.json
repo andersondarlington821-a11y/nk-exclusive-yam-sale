@@ -1,9 +1,12 @@
 {
+  "name": "nk-yam-sale",
+  "version": "1.0.0",
+  "description": "Yam order system",
+  "main": "netlify/functions/api.js",
+  "scripts": {
+    "build": "npm install"
+  },
   "dependencies": {
-    "@netlify/functions": "^5.2.0",
-    "@supabase/supabase-js": "^2.104.1",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "serverless-http": "^4.0.0"
+    "@supabase/supabase-js": "^2.39.0"
   }
 }
