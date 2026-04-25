@@ -9,16 +9,25 @@
   from = "/order"
   to = "/.netlify/functions/api/order"
   status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/orders/*"
+  to = "/.netlify/functions/api/admin/orders/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/admin/orders"
   to = "/.netlify/functions/api/admin/orders"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/orders"
   to = "/.netlify/functions/api/orders"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/admin"
@@ -26,6 +35,6 @@
   status = 200
 
 [[redirects]]
-  from = "/"
+  from = "/*"
   to = "/index.html"
   status = 200
